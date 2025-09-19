@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Products — YourBrand</title>
+    <meta name="description" content="Browse products and purchase — demo page." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="brand">
+          <span>Jinxware</span>
+        </div>
+        <nav class="links">
+          <a href="index.html">Home</a>
+          <a href="index.html#status">Status</a>
+          <a href="products.html">Products</a>
+        </nav>
+        <a class="cta" href="products.html">Products</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" style="padding: 56px 0 24px;">
+        <div class="container">
+          <span class="eyebrow reveal">Catalog</span>
+          <h1 class="reveal">Products</h1>
+          <p class="sub reveal">This is a demo store. Buttons are placeholders and won’t charge you.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <h2 class="reveal">Featured items</h2>
+
+          <div class="filters reveal" id="filters" style="margin-top: 10px;"></div>
+
+          <div class="grid" id="grid-products" style="margin-top: 18px;"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Variant Modal -->
+    <div id="variant-modal" class="modal" aria-hidden="true" hidden>
+      <div class="modal-backdrop" data-close="true"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="variant-title">
+        <button class="modal-close" aria-label="Close" data-close="true">✕</button>
+        <div id="variant-content"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">© <span id="y"></span> Jinxware — All rights reserved.</div>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>

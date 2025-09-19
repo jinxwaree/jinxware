@@ -1,0 +1,91 @@
+{
+  "products": [
+    {
+      "id": "fortnite",
+      "name": "Fortnite external",
+      "image": "/assets/fortnite.jpg",
+      "variants": [
+        {
+          "sku": "fn-day",
+          "name": "Day",
+          "price": 7.99,
+          "stock": null
+        },
+        {
+          "sku": "fn-3day",
+          "name": "3 Day",
+          "price": 15.99,
+          "stock": null
+        },
+        {
+          "sku": "fn-week",
+          "name": "Week",
+          "price": 31.99,
+          "stock": null
+        },
+        {
+          "sku": "fn-month",
+          "name": "Month",
+          "price": 59.99,
+          "stock": null
+        },
+        {
+          "sku": "fn-lifetime",
+          "name": "Lifetime",
+          "price": 269.99,
+          "stock": null
+        }
+      ]
+    },
+    {
+      "id": "cod",
+      "name": "CoD external",
+      "image": "/assets/cod.jpg",
+      "variants": [
+        {
+          "sku": "cod-day",
+          "name": "Day",
+          "price": 5.99,
+          "stock": 14
+        },
+        {
+          "sku": "cod-week",
+          "name": "Week",
+          "price": 20,
+          "stock": 15
+        },
+        {
+          "sku": "cod-month",
+          "name": "Month",
+          "price": 29.99,
+          "stock": 10
+        },
+        {
+          "sku": "cod-lifetime",
+          "name": "Lifetime",
+          "price": 99.99,
+          "stock": 5
+        }
+      ]
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "image": "https://cdn.discordapp.com/attachments/1397061707536273440/1418670504117796997/fortnite2.jpg?ex=68cef75d&is=68cda5dd&hm=e9371686e4a505230cda7f003bb14def8ec1f489562668ee4212fc175ad03c24&",
+      "variants": [
+        {
+          "sku": "day",
+          "name": "Day",
+          "price": 1000,
+          "stock": null
+        }
+      ]
+    },
+    {
+      "id": "test2",
+      "name": "Test2",
+      "image": "https://cdn.discordapp.com/attachments/1397061707536273440/1418671432216346676/co2d.jpg?ex=68cef83b&is=68cda6bb&hm=117faabd457d6471391437fcb6fe0acd057d5139fdcf98b53988e95deb07808e&",
+      "variants": []
+    }
+  ]
+}

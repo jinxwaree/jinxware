@@ -1,0 +1,12 @@
+# Ignore local environment and dependencies
+server/.env
+bot/.env
+**/.env
+
+# Node deps
+server/node_modules/
+bot/node_modules/
+
+# OS/Editor
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+{
+  "name": "jinxware-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "jinxware-bot": "file:",
+    "node-fetch": "^3.3.2"
+  }
+}

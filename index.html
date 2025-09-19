@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Demo Landing</title>
+    <meta name="description" content="A clean, dark landing page for a legitimate product or service." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="brand">
+          <span>Jinxware</span>
+        </div>
+        <nav class="links">
+          <a href="index.html">Home</a>
+          <a href="#status">Status</a>
+          <a href="products.html">Products</a>
+        </nav>
+        <a class="cta" href="products.html">Products</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container">
+          <span class="eyebrow reveal">Modern • Secure • Fast</span>
+          <h1 class="reveal"><span class="typewrite" id="typewriter" data-strings='["Ready to purchase the best products?","Win, Destroy, Never Lose."]'></span><span class="type-caret" aria-hidden="true"></span></h1>
+          <div class="hero-actions reveal">
+            <a class="btn" href="#features">See Features</a>
+          </div>
+          <div class="stats">
+            <div class="stat"><h3>99.9%</h3><div class="muted">Uptime</div></div>
+            <div class="stat"><h3 id="soldCount">3</h3><div class="muted">Products sold</div></div>
+            <div class="stat"><h3 id="userCount">99+</h3><div class="muted">Active users</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="container">
+          <h2 class="reveal">Products</h2>
+          <p class="muted reveal">Choose a product to see available service durations.</p>
+          <div class="grid" id="grid-products" style="margin-top: 18px;"></div>
+        </div>
+      </section>
+
+      <section id="status">
+        <div class="container">
+          <h2 class="reveal">Status</h2>
+          <p class="muted reveal">Live service status.</p>
+          <div class="status-list" style="margin-top: 18px;">
+            <div class="status-item reveal">
+              <div>
+                <h4 style="margin:0">CoD external</h4>
+                <div class="muted">Operational</div>
+              </div>
+              <span class="badge green">Updated</span>
+            </div>
+            <div class="status-item reveal">
+              <div>
+                <h4 style="margin:0">Fortnite external</h4>
+                <div class="muted">Operational</div>
+              </div>
+              <span class="badge green">Updated</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+    </main>
+
+    <!-- Variant Modal -->
+    <div id="variant-modal" class="modal" aria-hidden="true" hidden>
+      <div class="modal-backdrop" data-close="true"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="variant-title">
+        <button class="modal-close" aria-label="Close" data-close="true">✕</button>
+        <div id="variant-content"></div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">© <span id="y"></span> Jinxware — All rights reserved.</div>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>

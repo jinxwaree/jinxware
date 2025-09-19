@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: jinxware-api
+    env: node
+    rootDir: server
+    buildCommand: "npm install"
+    startCommand: "node index.js"
+    envVars:
+      - key: API_KEY
+        sync: false
+      - key: ALLOWED_ORIGIN
+        value: https://jinxware.xyz,https://www.jinxware.xyz
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/server/data
+      sizeGB: 1
+  - type: worker
+    name: jinxware-bot
+    env: node
+    rootDir: bot
+    buildCommand: "npm install"
+    startCommand: "node index.js"
+    envVars:
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: API_URL
+        value: https://api.jinxware.xyz
+      - key: API_KEY
+        sync: false
