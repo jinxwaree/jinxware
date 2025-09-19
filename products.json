@@ -1,0 +1,25 @@
+[
+  {
+    "id": "fortnite",
+    "name": "Fortnite external",
+    "image": "assets/fortnite.jpg",
+    "variants": [
+      { "sku": "fn-day", "name": "Day", "price": 7.99, "stock": null },
+      { "sku": "fn-3day", "name": "3 Day", "price": 15.99, "stock": null },
+      { "sku": "fn-week", "name": "Week", "price": 31.99, "stock": null },
+      { "sku": "fn-month", "name": "Month", "price": 59.99, "stock": null },
+      { "sku": "fn-lifetime", "name": "Lifetime", "price": 269.99, "stock": null }
+    ]
+  },
+  {
+    "id": "cod",
+    "name": "CoD external",
+    "image": "assets/cod.jpg",
+    "variants": [
+      { "sku": "cod-day", "name": "Day", "price": 5.99, "stock": 14 },
+      { "sku": "cod-week", "name": "Week", "price": 20.0, "stock": 15 },
+      { "sku": "cod-month", "name": "Month", "price": 29.99, "stock": 10 },
+      { "sku": "cod-lifetime", "name": "Lifetime", "price": 99.99, "stock": 5 }
+    ]
+  }
+]

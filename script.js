@@ -199,11 +199,11 @@ const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').mat
     }
   };
 
-  // Try to fetch live products from API server, then render any dynamic grids/filters
+  // Load products from a static file (products.json), then render.
+  // If the file isn't present, we fall back to the built-in DATA above.
   (async () => {
     try {
-      const base = location.protocol === 'file:' ? 'http://localhost:3001' : '';
-      const r = await fetch(`${base}/api/products`, { method: 'GET' });
+      const r = await fetch('products.json', { method: 'GET', cache: 'no-store' });
       if (r.ok) {
         const arr = await r.json();
         const next = {};
@@ -219,7 +219,7 @@ const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').mat
           DATA = { ...DATA, ...next };
         }
       }
-    } catch (e) { /* ignore */ }
+    } catch (e) { /* ignore if products.json missing */ }
     renderDynamicProducts();
   })();
 
