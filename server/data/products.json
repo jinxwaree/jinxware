@@ -70,16 +70,9 @@
     },
     {
       "id": "test",
-      "name": "Test",
-      "image": "https://cdn.discordapp.com/attachments/1397061707536273440/1418670504117796997/fortnite2.jpg?ex=68cef75d&is=68cda5dd&hm=e9371686e4a505230cda7f003bb14def8ec1f489562668ee4212fc175ad03c24&",
-      "variants": [
-        {
-          "sku": "day",
-          "name": "Day",
-          "price": 1000,
-          "stock": null
-        }
-      ]
+      "name": "test",
+      "image": "https://cdn.discordapp.com/attachments/1397061707536273440/1418671432216346676/co2d.jpg?ex=68cef83b&is=68cda6bb&hm=117faabd457d6471391437fcb6fe0acd057d5139fdcf98b53988e95deb07808e&",
+      "variants": []
     },
     {
       "id": "test2",

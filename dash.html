@@ -9,8 +9,20 @@
       .container { max-width: 900px; margin: 40px auto; padding: 0 16px; }
       textarea { width: 100%; min-height: 420px; border-radius: 12px; border: 1px solid #1a2230; background: #0f1318; color: var(--text); padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
       .row { display: flex; gap: 8px; margin-top: 12px; }
-      input[type="text"], input[type="password"] { width: 100%; border-radius: 8px; border: 1px solid #1a2230; background: #10151b; color: var(--text); padding: 10px; }
+      input[type="text"], input[type="password"], input[type="number"] { width: 100%; border-radius: 8px; border: 1px solid #1a2230; background: #10151b; color: var(--text); padding: 10px; }
       .muted { color: var(--muted); }
+
+      /* Admin visual editor */
+      .admin-grid { display: grid; grid-template-columns: 280px 1fr; gap: 12px; margin-top: 12px; }
+      .panel-box { background: var(--panel); border: 1px solid #192233; border-radius: 12px; padding: 12px; }
+      .list { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow: auto; }
+      .list-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid #1a2230; background: #10151b; color: var(--text); border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+      .list-item.active { outline: 2px solid var(--accent); border-color: #284061; }
+      .btn.small { padding: 8px 10px; font-size: 12px; }
+      .btn.danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #0b0d10; border: none; }
+      .variant-rows { display: flex; flex-direction: column; gap: 6px; }
+      .keys-editor textarea { width: 100%; min-height: 120px; margin-top: 6px; }
+      @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -37,6 +49,23 @@
         <input type="password" id="pass" placeholder="Password" autocomplete="new-password" />
       </div>
 
+      <h2 style="margin-top:16px;">Visual Editor</h2>
+      <div class="admin-grid">
+        <aside class="panel-box">
+          <div class="row" style="margin-top:0">
+            <button class="btn small" id="addProductBtn">+ Add product</button>
+          </div>
+          <div id="prod-list" class="list" aria-label="Products"></div>
+        </aside>
+        <section class="panel-box" id="prod-editor">
+          <div class="muted">Select or add a product to edit.</div>
+        </section>
+      </div>
+
+      <h2 style="margin-top:20px;">Raw JSON</h2>
+      <div class="row" style="margin-top: 8px;">
+        <button class="btn" id="applyJson">Use JSON in Visual</button>
+      </div>
       <textarea id="editor" spellcheck="false" placeholder='[ { "id": "cod", "name": "CoD", "image": "assets/cod.jpg", "variants": [] } ]'></textarea>
       <p class="muted">Tip: JSON array of products. Use the same structure as products.json.</p>
       <div id="msg" class="muted" style="margin-top:8px;"></div>
@@ -53,6 +82,7 @@
           if (!r.ok) throw new Error('HTTP ' + r.status);
           const data = await r.json();
           ed.value = JSON.stringify(data, null, 2);
+          setModel(data);
           msg.textContent = 'Loaded from API.';
         } catch (e) {
           msg.textContent = 'Failed to load from API.';
@@ -66,6 +96,7 @@
           if (!r.ok) throw new Error('HTTP ' + r.status);
           const data = await r.json();
           ed.value = JSON.stringify(data, null, 2);
+          setModel(data);
           msg.textContent = 'Loaded from products.json';
         } catch (e) {
           msg.textContent = 'Failed to load products.json.';
@@ -98,6 +129,167 @@
       document.getElementById('load').onclick = loadApi;
       document.getElementById('loadLocal').onclick = loadLocal;
       document.getElementById('save').onclick = save;
+      document.getElementById('applyJson').onclick = syncModelFromEditor;
+
+      // ===== Visual Editor logic =====
+      let MODEL = [];
+      let SELECT = -1;
+
+      function normalizeProducts(arr) {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(p => ({
+          id: String(p.id || '').trim(),
+          name: String(p.name || ''),
+          image: String(p.image || ''),
+          variants: Array.isArray(p.variants) ? p.variants.map(v => ({
+            sku: String(v.sku || ''),
+            name: String(v.name || ''),
+            price: (v.price === null || v.price === undefined || v.price === '') ? null : Number(v.price),
+            stock: (v.stock === null || v.stock === undefined || v.stock === '') ? null : Number(v.stock),
+            keys: Array.isArray(v.keys) ? v.keys.map(k => String(k)) : []
+          })) : []
+        }));
+      }
+
+      function setModel(arr) {
+        MODEL = normalizeProducts(arr);
+        if (MODEL.length && (SELECT < 0 || SELECT >= MODEL.length)) SELECT = 0;
+        renderVisual();
+      }
+
+      function syncEditorFromModel() {
+        try { ed.value = JSON.stringify(MODEL, null, 2); } catch(e) {}
+      }
+
+      function syncModelFromEditor() {
+        try {
+          const data = JSON.parse(ed.value || '[]');
+          setModel(data);
+          msg.textContent = 'Visual editor updated from JSON.';
+        } catch (e) {
+          msg.textContent = 'Invalid JSON — unable to update visual editor.';
+        }
+      }
+
+      function stockOfProduct(p) {
+        let total = 0, any = false;
+        for (const v of (p.variants || [])) {
+          const s = Array.isArray(v.keys) ? v.keys.length : (typeof v.stock === 'number' ? v.stock : null);
+          if (typeof s === 'number' && isFinite(s)) { total += s; any = true; }
+        }
+        return any ? total : null;
+      }
+
+      function renderVisual() {
+        const list = document.getElementById('prod-list');
+        const pane = document.getElementById('prod-editor');
+        if (!list || !pane) return;
+
+        // List
+        list.innerHTML = MODEL.length ? MODEL.map((p, i) => {
+          const s = stockOfProduct(p);
+          const variants = (p.variants || []).length;
+          return `<button class="list-item ${i===SELECT?'active':''}" data-idx="${i}"><span>${p.name || p.id || 'Untitled'}</span><span class="muted">${variants} var · ${s ?? '—'} stock</span></button>`;
+        }).join('') : '<div class="muted">No products yet.</div>';
+
+        // Editor
+        if (SELECT < 0 || !MODEL[SELECT]) { pane.innerHTML = '<div class="muted">Select or add a product to edit.</div>'; return; }
+        const p = MODEL[SELECT];
+        const vRows = (p.variants || []).map((v, j) => {
+          const count = Array.isArray(v.keys) ? v.keys.length : 0;
+          const hasKeys = count > 0;
+          const price = (v.price ?? '') === '' ? '' : (v.price ?? '');
+          const stock = (v.stock ?? '') === '' ? '' : (v.stock ?? '');
+          const keysText = Array.isArray(v.keys) ? v.keys.join('\n') : '';
+          return `
+            <div class="variant-row" data-vidx="${j}">
+              <div class="row" style="margin-top:8px;">
+                <input class="in sku" type="text" placeholder="SKU" value="${v.sku||''}">
+                <input class="in vname" type="text" placeholder="Variant name" value="${v.name||''}">
+                <input class="in price" type="number" step="0.01" placeholder="Price" value="${price}">
+                <input class="in stock" type="number" step="1" placeholder="Stock" value="${hasKeys ? '' : stock}" ${hasKeys ? 'disabled' : ''} title="${hasKeys ? 'Stock is derived from keys' : ''}">
+                <button class="btn small toggle-keys">${hasKeys ? 'Keys ('+count+')' : 'Keys'}</button>
+                <button class="btn small danger del-variant">Delete</button>
+              </div>
+              <div class="keys-editor" ${hasKeys ? '' : 'hidden'}>
+                <textarea class="keys-text" placeholder="One key per line">${keysText}</textarea>
+              </div>
+            </div>`;
+        }).join('');
+
+        pane.innerHTML = `
+          <div class="row" style="margin-top:0">
+            <input id="p-id" type="text" placeholder="id (url-safe)" value="${p.id||''}">
+            <input id="p-name" type="text" placeholder="Product name" value="${p.name||''}">
+            <input id="p-image" type="text" placeholder="Image path e.g. assets/cod.jpg" value="${p.image||''}">
+          </div>
+          <div class="row">
+            <button class="btn small" id="addVariantBtn">+ Add variant</button>
+            <button class="btn small danger" id="deleteProductBtn">Delete product</button>
+          </div>
+          <div class="muted" style="margin-top:8px">Variants</div>
+          <div class="variant-rows">${vRows || '<div class="muted">No variants.</div>'}</div>
+        `;
+
+        // Bind list interactions
+        list.onclick = (e) => {
+          const btn = e.target.closest('[data-idx]');
+          if (!btn) return;
+          SELECT = Number(btn.getAttribute('data-idx'));
+          renderVisual();
+        };
+
+        // Editor interactions
+        pane.onclick = (e) => {
+          const p = MODEL[SELECT]; if (!p) return;
+          const t = e.target;
+          if (t.id === 'addVariantBtn') {
+            p.variants = p.variants || [];
+            p.variants.push({ sku: '', name: '', price: null, stock: null, keys: [] });
+            renderVisual(); syncEditorFromModel();
+          } else if (t.id === 'deleteProductBtn') {
+            if (confirm('Delete this product?')) {
+              MODEL.splice(SELECT, 1);
+              SELECT = MODEL.length ? Math.max(0, SELECT - 1) : -1;
+              renderVisual(); syncEditorFromModel();
+            }
+          } else if (t.classList.contains('del-variant')) {
+            const row = t.closest('.variant-row');
+            const j = Number(row.getAttribute('data-vidx'));
+            p.variants.splice(j, 1);
+            renderVisual(); syncEditorFromModel();
+          } else if (t.classList.contains('toggle-keys')) {
+            const row = t.closest('.variant-row');
+            const ediv = row.querySelector('.keys-editor');
+            ediv.hidden = !ediv.hidden;
+          }
+        };
+
+        pane.oninput = (e) => {
+          const p = MODEL[SELECT]; if (!p) return;
+          const t = e.target;
+          if (t.id === 'p-id') p.id = t.value.trim();
+          else if (t.id === 'p-name') p.name = t.value;
+          else if (t.id === 'p-image') p.image = t.value;
+          else if (t.classList.contains('sku') || t.classList.contains('vname') || t.classList.contains('price') || t.classList.contains('stock')) {
+            const row = t.closest('.variant-row');
+            const j = Number(row.getAttribute('data-vidx'));
+            const v = p.variants[j] || (p.variants[j] = {});
+            if (t.classList.contains('sku')) v.sku = t.value;
+            if (t.classList.contains('vname')) v.name = t.value;
+            if (t.classList.contains('price')) v.price = t.value === '' ? null : Number(t.value);
+            if (t.classList.contains('stock')) v.stock = t.value === '' ? null : parseInt(t.value, 10);
+          } else if (t.classList.contains('keys-text')) {
+            const row = t.closest('.variant-row');
+            const j = Number(row.getAttribute('data-vidx'));
+            const v = p.variants[j] || (p.variants[j] = {});
+            const lines = String(t.value || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+            v.keys = lines;
+          }
+          syncEditorFromModel();
+          renderVisual();
+        };
+      }
 
       // Initial load from API; if fails, try local
       loadApi().then(() => {}).catch(() => loadLocal());

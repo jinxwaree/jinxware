@@ -18,7 +18,9 @@ function verifyAuth(req) {
 export default async function handler(req, res) {
   if (!verifyAuth(req)) return unauthorized(res);
   try {
-    const html = await fs.readFile(process.cwd() + '/dash.html', 'utf8');
+    // Use import.meta.url so Vercel includes the HTML file in the function bundle
+    const fileUrl = new URL('../dash.html', import.meta.url);
+    const html = await fs.readFile(fileUrl, 'utf8');
     res.setHeader('content-type', 'text/html; charset=utf-8');
     return res.status(200).send(html);
   } catch (e) {
