@@ -199,13 +199,13 @@ const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').mat
     }
   };
 
-  // Load products from a static file (products.json), then render.
-  // If the file isn't present, we fall back to the built-in DATA above.
+  // Try serverless API first; fall back to static products.json; finally fall back to built-in DATA
   (async () => {
+    let loaded = false;
     try {
-      const r = await fetch('products.json', { method: 'GET', cache: 'no-store' });
-      if (r.ok) {
-        const arr = await r.json();
+      const r1 = await fetch('/api/products', { method: 'GET', cache: 'no-store' });
+      if (r1.ok) {
+        const arr = await r1.json();
         const next = {};
         for (const p of arr) {
           next[p.id] = {
@@ -217,9 +217,32 @@ const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').mat
         }
         if (Object.keys(next).length) {
           DATA = { ...DATA, ...next };
+          loaded = true;
         }
       }
-    } catch (e) { /* ignore if products.json missing */ }
+    } catch (e) { /* ignore */ }
+
+    if (!loaded) {
+      try {
+        const r2 = await fetch('products.json', { method: 'GET', cache: 'no-store' });
+        if (r2.ok) {
+          const arr = await r2.json();
+          const next = {};
+          for (const p of arr) {
+            next[p.id] = {
+              name: p.name,
+              image: p.image?.startsWith('/') ? p.image.slice(1) : p.image || DATA[p.id]?.image,
+              imagePos: DATA[p.id]?.imagePos || 'center',
+              variants: Array.isArray(p.variants) ? p.variants : []
+            };
+          }
+          if (Object.keys(next).length) {
+            DATA = { ...DATA, ...next };
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+
     renderDynamicProducts();
   })();
 

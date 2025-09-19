@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Jinxware Admin</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .container { max-width: 900px; margin: 40px auto; padding: 0 16px; }
+      textarea { width: 100%; min-height: 420px; border-radius: 12px; border: 1px solid #1a2230; background: #0f1318; color: var(--text); padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .row { display: flex; gap: 8px; margin-top: 12px; }
+      input[type="text"], input[type="password"] { width: 100%; border-radius: 8px; border: 1px solid #1a2230; background: #10151b; color: var(--text); padding: 10px; }
+      .muted { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="brand"><span>Jinxware</span></div>
+        <nav class="links"><a href="index.html">Home</a></nav>
+        <span class="cta">Admin</span>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1>Admin Dashboard</h1>
+      <p class="muted">Load, edit, and save products. Saving requires your admin username/password on every save.</p>
+
+      <div class="row">
+        <button class="btn" id="load">Load from API</button>
+        <button class="btn" id="loadLocal">Load local products.json</button>
+        <button class="btn primary" id="save">Save to API</button>
+      </div>
+
+      <div class="row">
+        <input type="text" id="user" placeholder="Username" autocomplete="off" />
+        <input type="password" id="pass" placeholder="Password" autocomplete="new-password" />
+      </div>
+
+      <textarea id="editor" spellcheck="false" placeholder='[ { "id": "cod", "name": "CoD", "image": "assets/cod.jpg", "variants": [] } ]'></textarea>
+      <p class="muted">Tip: JSON array of products. Use the same structure as products.json.</p>
+      <div id="msg" class="muted" style="margin-top:8px;"></div>
+    </main>
+
+    <script>
+      const ed = document.getElementById('editor');
+      const msg = document.getElementById('msg');
+
+      async function loadApi() {
+        msg.textContent = 'Loading from /api/products...';
+        try {
+          const r = await fetch('/api/products', { cache: 'no-store' });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const data = await r.json();
+          ed.value = JSON.stringify(data, null, 2);
+          msg.textContent = 'Loaded from API.';
+        } catch (e) {
+          msg.textContent = 'Failed to load from API.';
+        }
+      }
+
+      async function loadLocal() {
+        msg.textContent = 'Loading products.json...';
+        try {
+          const r = await fetch('products.json', { cache: 'no-store' });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const data = await r.json();
+          ed.value = JSON.stringify(data, null, 2);
+          msg.textContent = 'Loaded from products.json';
+        } catch (e) {
+          msg.textContent = 'Failed to load products.json.';
+        }
+      }
+
+      async function save() {
+        const user = document.getElementById('user').value;
+        const pass = document.getElementById('pass').value;
+        if (!user || !pass) { msg.textContent = 'Enter username and password to save.'; return; }
+        let data;
+        try { data = JSON.parse(ed.value || '[]'); }
+        catch (e) { msg.textContent = 'Invalid JSON.'; return; }
+        msg.textContent = 'Saving...';
+        try {
+          const auth = btoa(user + ':' + pass);
+          const r = await fetch('/api/admin/save-products', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', 'authorization': 'Basic ' + auth },
+            body: JSON.stringify(data)
+          });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const out = await r.json();
+          msg.textContent = 'Saved. Blob URL: ' + (out.url || 'updated');
+        } catch (e) {
+          msg.textContent = 'Save failed.';
+        }
+      }
+
+      document.getElementById('load').onclick = loadApi;
+      document.getElementById('loadLocal').onclick = loadLocal;
+      document.getElementById('save').onclick = save;
+
+      // Initial load from API; if fails, try local
+      loadApi().then(() => {}).catch(() => loadLocal());
+    </script>
+  </body>
+</html>
