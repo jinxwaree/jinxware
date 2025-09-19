@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     if (!Array.isArray(data)) return res.status(400).json({ error: 'Expected an array of products' });
 
     const { url } = await put('products.json', JSON.stringify(data, null, 2), {
-      access: 'public',
+      access: 'private',
       contentType: 'application/json'
     });
     return res.status(200).json({ ok: true, url });
