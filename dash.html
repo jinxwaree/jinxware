@@ -130,6 +130,13 @@
       document.getElementById('loadLocal').onclick = loadLocal;
       document.getElementById('save').onclick = save;
       document.getElementById('applyJson').onclick = syncModelFromEditor;
+      document.getElementById('addProductBtn').onclick = () => {
+        MODEL = Array.isArray(MODEL) ? MODEL : [];
+        MODEL.push({ id: '', name: '', image: '', variants: [] });
+        SELECT = MODEL.length - 1;
+        renderVisual();
+        syncEditorFromModel();
+      };
 
       // ===== Visual Editor logic =====
       let MODEL = [];
